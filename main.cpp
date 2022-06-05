@@ -4,9 +4,8 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
-#include "intervenant.h"
-#include "mission.h"
-#include "distance.h"
+
+#include "chromosome.h"
 
 
 using namespace std;
@@ -116,7 +115,14 @@ int main(int argc, char **argv){
         exit(EXIT_FAILURE);
     }
     getData(argv[1], argv[2], argv[3]);
-
+    cout << "Nombre d'intervenants: " << nb_intervenants << endl;
+    cout << "Nombre de missions: " << nb_missions << endl;
+    Random::randomize();
+    chromosome *Chromosome = new chromosome(nb_missions, nb_intervenants, missions, intervenants, distances);
+    Chromosome->evaluer();
+    Chromosome->afficher();
+    Chromosome->hasIntervenantCompetence();
+    cout << "nombre de chevauchement : " << Chromosome->hasOnlyOneMission() << endl;
     return 0;
 }
 

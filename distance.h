@@ -9,7 +9,12 @@ private:
     int taille;
 public:
     Distance();
-    ~Distance();
+    ~Distance(){
+        for(int i=0; i<taille; i++){
+            delete[] dist[i];
+        }
+        delete[] dist;
+    }
     Distance(char *filename){
         string line, word;
         int count = 0;
@@ -49,12 +54,12 @@ public:
     }
 
     double getDistanceMtoM(int i, int j){
-        return this->dist[i+1][j+1];
+        return this->dist[j][i]; //inversion car la 1ère colonne sont les distance sessad a mission donc colonne i = distance entre i et mission j
     }
     double getDistanceMtoSESSAD(int i){
-        return this->dist[i+1][0];
+        return this->dist[0][i];
     }
     double getDistanceSESSADtoM(int i){
-        return this->dist[0][i+1];
+        return this->dist[i][0];
     }
 };
