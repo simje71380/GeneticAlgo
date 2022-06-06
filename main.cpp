@@ -119,11 +119,12 @@ int main(int argc, char **argv){
     cout << "Nombre de missions: " << nb_missions << endl;
     Random::randomize();
     chromosome *Chromosome = new chromosome(nb_missions, nb_intervenants, missions, intervenants, distances);
-    /*Chromosome->evaluer();
-    Chromosome->hasIntervenantCompetence();
-    cout << "nombre de chevauchement : " << Chromosome->hasOnlyOneMissionOrTime() << endl;*/
     Chromosome->afficher();
-    cout << "nb pénalitées : " << Chromosome->countPenalties() << endl;
+    Chromosome->evaluer();
+    /*Chromosome->hasIntervenantCompetence();
+    cout << "nombre de chevauchement : " << Chromosome->hasOnlyOneMissionOrTime() << endl;
+    Chromosome->afficher();
+    cout << "nb pénalitées : " << Chromosome->countPenalties() << endl;*/
     return 0;
 }
 
