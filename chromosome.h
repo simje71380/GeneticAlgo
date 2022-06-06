@@ -37,7 +37,9 @@ public:
     void copier(chromosome* source);  // copie le chromosome 'source'
     bool hasAllMissionsAffected();
     bool hasIntervenantCompetence();
-    int hasOnlyOneMission(); //retourne le nombre de missions qui sont superposées ou les missions ou l'intervenant n'a pas le temps d'aller d'une mission vers l'autre
+    int hasOnlyOneMissionOrTime(); //retourne le nombre de missions qui sont superposées ou les missions ou l'intervenant n'a pas le temps d'aller d'une mission vers l'autre
+    int countPenalties(); //retourne le nombre de fois ou les contraintes souples sont non respectées
+    int* OrdonnerMissions(int *missions, int *out, int size); //retourne un tableau ordonné des missions
     bool identique(chromosome* chro); // test si 2 chromosome sont identique
 
     // OPERATEURS DE MUTATION

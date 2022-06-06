@@ -96,7 +96,7 @@ bool chromosome::hasIntervenantCompetence(){
 	return true;
 }
 
-int chromosome::hasOnlyOneMission(){
+int chromosome::hasOnlyOneMissionOrTime(){
 	int id_intervenant = 0;
 	int **affected_mission = new int*[nb_intervenants];	//tableau contenant les missions affect�es � l'intervant de l'itération
 	int *size = new int[nb_intervenants];							//tableau contenant le nombre de missions affect�es � l'intervenant de l'itération
@@ -124,7 +124,7 @@ int chromosome::hasOnlyOneMission(){
 			continue;
 		}
 		else{
-			affected_mission[id_intervenant][count] = genes[i];
+			affected_mission[id_intervenant][count] = genes[i]-1;//0 à 44 ald de 1 à 45
 			count++;
 		}
 	}
@@ -141,32 +141,32 @@ int chromosome::hasOnlyOneMission(){
 					//chevauchement
 					if(deb_1 < deb_2){ //debut de la mission 1 avant debut de la mission 2
 						if(fin_1 > deb_2){ //fin de la mission 1 après debut de la mission 2
-							//cout << "   1    "<< "Intervenant " << intervenants[i].GetId() << " chevauche les missions " << missions[affected_mission[i][j]].GetId() << " et " << missions[affected_mission[i][k]].GetId() << endl;
+							cout << "   1    "<< "Intervenant " << intervenants[i].GetId() << " chevauche les missions " << missions[affected_mission[i][j]].GetId() << " et " << missions[affected_mission[i][k]].GetId() << endl;
 							chevauchement++;
 						}
 						else{ //sinon il faut avoir le temps d'aller de la mission 1 à la mission 2
 							float temps_trajet = (float)distances->getDistanceMtoM(missions[affected_mission[i][j]].GetId(), missions[affected_mission[i][k]].GetId())/833.333;
 							if(temps_trajet > (float)fin_2 - deb_1){
-								//cout << "   2    "<< "Intervenant " << intervenants[i].GetId() << " n'a pas le temps d'aller de " << missions[affected_mission[i][j]].GetId() << " a " << missions[affected_mission[i][k]].GetId() << endl;
+								cout << "   2    "<< "Intervenant " << intervenants[i].GetId() << " n'a pas le temps d'aller de " << missions[affected_mission[i][j]].GetId() << " a " << missions[affected_mission[i][k]].GetId() << endl;
 								chevauchement++;
 							}
 						}
 					}
 					else if(deb_1 > deb_2){ //debut par la mission 2 puis va vers la mission 1
 						if(fin_2 > deb_1){ //fin de la mission 2 après debut de la mission 1
-							//cout << "   3   "<<"Intervenant " << intervenants[i].GetId() << " chevauche les missions " << missions[affected_mission[i][j]].GetId() << " et " << missions[affected_mission[i][k]].GetId() << endl;
+							cout << "   3   "<<"Intervenant " << intervenants[i].GetId() << " chevauche les missions " << missions[affected_mission[i][j]].GetId() << " et " << missions[affected_mission[i][k]].GetId() << endl;
 							chevauchement++;
 						}
 						else{	//sinon il faut avoir le temps d'aller de la mission 2 à la mission 1
 							float temps_trajet = (float)distances->getDistanceMtoM(missions[affected_mission[i][k]].GetId(), missions[affected_mission[i][j]].GetId())/833.333;
 							if(temps_trajet > (float)fin_1 - deb_2){
-								//cout << "   4    "<< "Intervenant " << intervenants[i].GetId() << " n'a pas le temps d'aller de " << missions[affected_mission[i][k]].GetId() << " a " << missions[affected_mission[i][j]].GetId() << endl;
+								cout << "   4    "<< "Intervenant " << intervenants[i].GetId() << " n'a pas le temps d'aller de " << missions[affected_mission[i][k]].GetId() << " a " << missions[affected_mission[i][j]].GetId() << endl;
 								chevauchement++;
 							}
 						}
 					}
 					else{ //deb_1 == deb_2
-						//cout << "   5    "<<"Mission " << missions[affected_mission[i][j]].GetId() << " et " << missions[affected_mission[i][k]].GetId() << " sont en chevauchement" << endl;
+						cout << "   5    "<<"Mission " << missions[affected_mission[i][j]].GetId() << " et " << missions[affected_mission[i][k]].GetId() << " sont en chevauchement" << endl;
 						chevauchement++;
 					}
 				}
@@ -240,6 +240,50 @@ void chromosome::afficher()
 		cout << "|" << genes[i];
 	//cout << " => fitness = " << fitness << endl;
 	cout << endl;
+
+		int id_intervenant = 0;
+	int **affected_mission = new int*[nb_intervenants];	//tableau contenant les missions_id affect�es � l'intervant
+	int *size = new int[nb_intervenants];				//tableau contenant le nombre de missions affect�es par intervenant
+	int count = 0;
+	//initialisation du tableau
+	for(int i=0; i<taille; i++){
+		if(genes[i] == -1){
+			affected_mission[id_intervenant] = new int[count];
+			size[id_intervenant] = count;
+			count = 0;
+			id_intervenant++;
+			continue;
+		}
+		count++;
+	}
+	affected_mission[id_intervenant] = new int[count];
+	size[id_intervenant] = count;
+	//remplissage du tableau
+	count = 0;
+	id_intervenant = 0;
+	for(int i=0; i<taille; ++i){
+		if(genes[i] == -1){
+			id_intervenant++;
+			count = 0;
+			continue;
+		}
+		else{
+			affected_mission[id_intervenant][count] = genes[i];
+			count++;
+		}
+	}
+
+	//affichage des missions affect�es
+	for(int i=0; i<nb_intervenants; i++){
+		cout << "Intervenant " << i+1 << " : " << endl;
+		int *out_id = new int[size[i]];
+		OrdonnerMissions(affected_mission[i], out_id, size[i]);
+		cout << out_id[0];
+		for(int j=1; j<size[i]; j++){
+			cout << " " << out_id[j];
+		}
+		cout << endl;
+	}
 }
 
 bool chromosome::identique(chromosome* chro)
@@ -248,4 +292,170 @@ bool chromosome::identique(chromosome* chro)
 		if (chro->genes [i] != this->genes[i])
 			return false;
 	return true;
+}
+
+int chromosome::countPenalties(){
+	int id_intervenant = 0;
+	int **affected_mission = new int*[nb_intervenants];	//tableau contenant les missions_id affect�es � l'intervant
+	int *size = new int[nb_intervenants];				//tableau contenant le nombre de missions affect�es par intervenant
+	int count = 0;
+	//initialisation du tableau
+	for(int i=0; i<taille; i++){
+		if(genes[i] == -1){
+			affected_mission[id_intervenant] = new int[count];
+			size[id_intervenant] = count;
+			count = 0;
+			id_intervenant++;
+			continue;
+		}
+		count++;
+	}
+	affected_mission[id_intervenant] = new int[count];
+	size[id_intervenant] = count;
+	//remplissage du tableau
+	count = 0;
+	id_intervenant = 0;
+	for(int i=0; i<taille; ++i){
+		if(genes[i] == -1){
+			id_intervenant++;
+			count = 0;
+			continue;
+		}
+		else{
+			affected_mission[id_intervenant][count] = genes[i];
+			count++;
+		}
+	}
+	int counter_penalties = 0;
+	for(int i = 0; i < nb_intervenants; i++){
+		int* out = new int[size[i]]; //contient l'ID de la mission et pas sa position dans le tableau missions[]
+		OrdonnerMissions(affected_mission[i], out, size[i]);
+		int working_minutes_daily = 0;
+		int day = 1;
+		
+		if(size[i] == 0){
+			//cout << endl << endl << "Intervenant " << i+1 << " nb de missions affectées : " << size[i] << endl << endl;
+			continue;
+		}
+		int start_time = missions[out[0]-1].GetDebutMissionMinute();
+		int heure_sup_weekly = 0;
+		//cout << "Intervenant " << i+1 << " : " << " jour : " << day << " heure de début : " << start_time << " Mission : " << out[0] << endl;
+		for(int j = 1; j < size[i]; j++){
+			bool deja_penalise = false;
+			if(missions[out[j-1]-1].GetJour() == missions[out[j]-1].GetJour()){ //missions le meme jour
+				if(missions[out[j-1]-1].GetFinMissionMinute() > missions[out[j]-1].GetDebutMissionMinute()){ //fin de la premi�re mission > debut de la seconde
+					counter_penalties++;
+					deja_penalise = true;
+					//cout << "Intervenant : " << i+1 <<  " Mission " << out[j-1] << " et " << out[j] << " sont en chevauchement" << endl;
+				}
+				else{
+					//temps de trajet
+					float temps_trajet = (float)distances->getDistanceMtoM(out[j-1], out[j])/833.333;
+					if(temps_trajet > (float)missions[out[j]-1].GetDebutMissionMinute() - (float)missions[out[j-1]-1].GetFinMissionMinute()){
+						//cout << "Intervenant : " << i+1 <<  " Temps de trajet entre " << out[j-1] << " et " << out[j] << " : " << temps_trajet << endl;
+						//cout << "Intervenant : " << i+1 <<  " temps entre missions" << (float)missions[out[j]-1].GetDebutMissionMinute() - (float)missions[out[j-1]-1].GetFinMissionMinute() << endl;
+						counter_penalties++;
+						deja_penalise = true;
+						//cout << "Intervenant : " << i+1 <<" Mission " << out[j-1] << " et " << out[j] << " pas le temps trajet" << endl;
+					}
+				}
+				if(missions[out[j-1]-1].GetFinMissionMinute() >= 720 && !deja_penalise){ //mission précédente fini à/apres midi -> il faut un delta d'au moins 1h avant le debut de la mission courrante
+					int delta = (int)missions[out[j]-1].GetDebutMissionMinute() - (int)missions[out[j-1]-1].GetFinMissionMinute(); //temps de trajet non compté
+					if(delta < 60){
+						counter_penalties++;
+						deja_penalise = true;
+						//cout << "Intervenant : " << i+1 <<  " Mission " << out[j-1] << " et " << out[j] << " pas de pause le midi assez longue ("<< delta << ")" << endl;
+					}
+				}
+			}
+			//calcul des heures de travail sur la journée
+			if(missions[out[j]-1].GetJour() == day){
+				working_minutes_daily += (int)missions[out[j]-1].GetFinMissionMinute() - (int)missions[out[j-1]-1].GetDebutMissionMinute();
+				//ajout du temps de trajet
+				working_minutes_daily += (int)distances->getDistanceMtoM(out[j-1], out[j])/833.333;
+			}
+			else{ //changement de journée
+				//compute
+				if(working_minutes_daily > 480){ //ne doit pas dépasser 8h
+					counter_penalties++;
+					//cout << "Intervenant " << i+1 <<  " jour " << day << " trop de temps de travail ("<< working_minutes_daily << ")" << endl;
+					if(working_minutes_daily > 600){ // + de 2h supp sur la journée
+						counter_penalties++;
+						//cout << "Intervenant " << i+1 <<  " jour " << day << " trop de temps de travail avec heure supp ("<< working_minutes_daily << ")" << endl;
+					}
+					heure_sup_weekly += working_minutes_daily - 480;
+				}
+				int end_time = missions[out[j-1]-1].GetFinMissionMinute();
+				//cout << "Intervenant " << i+1 << " : " << " jour : " << day << " heure de fin : " << end_time << " Mission : " << out[j-1] << endl;
+				if(end_time - start_time > 720){ // amplitude de 12h max
+					counter_penalties++;
+					//cout << "Intervenant " << i+1 <<  " jour " << day << " amplitude trop grande ("<< end_time - start_time << ")" << endl;
+				}
+				day++;
+				working_minutes_daily = 0;
+				start_time = missions[out[j-1]-1].GetDebutMissionMinute();
+				//cout << "Intervenant " << i+1 << " : " << " jour : " << day << " heure de début : " << start_time << " Mission : " << out[j] << endl;
+			}
+		}
+		//pénalitée des heures supp weekly
+		if(heure_sup_weekly > 600){ //10h supp / semaine max
+			counter_penalties++;
+			//cout << "Intervenant " << i+1 <<  "trop d'heures supplémentaires ("<< heure_sup_weekly << ")" << endl;
+		}
+
+		int end_time = missions[out[size[i]-1]-1].GetFinMissionMinute();
+		//cout << "Intervenant " << i+1 << " : " << " jour : " << day << " heure de fin : " << end_time << endl;
+		if(end_time - start_time > 720){ // amplitude de 12h max
+			counter_penalties++;
+			//cout << "Intervenant " << i+1 <<  " jour " << day << " amplitude trop grande ("<< end_time - start_time << ")" << endl;
+		}
+	}
+
+	//verif mission affectée qu'un fois normalement impossible
+	int *memo = new int[taille];
+	int idx = 0;
+	for(int i=0; i<taille; i++){
+		if(genes[i] != -1){
+			for(int j=0; j<idx; j++){
+				if(genes[i] == memo[j]){
+					counter_penalties++;
+					cout <<  "Mission " << genes[i] << " est affectée 2 fois !" << endl;
+					continue;
+				}
+			}
+		}
+		memo[idx] = genes[i];
+		idx++;
+	}
+	delete [] memo;
+	return counter_penalties;
+}
+
+
+int* chromosome::OrdonnerMissions(int *missionsid, int *out, int size){
+	struct Id_Time{
+		int Mid;
+		int date;
+	}id_time;
+	struct Id_Time *id_time_tab = new struct Id_Time[size];
+	for(int i=0; i<size; i++){
+		id_time.date = missions[missionsid[i]-1].GetJour()*24*60 + missions[missionsid[i]-1].GetDebutMissionMinute(); //-1 car missions[0] = mission 1
+		id_time.Mid = missionsid[i];
+		id_time_tab[i] = id_time;
+	}
+	for(int i=0; i<size; i++){
+		//trouver le minimum date et mettre à -1
+		int min = 100000;
+		int min_id = -1;
+		for(int j=0; j<size; j++){
+			if(id_time_tab[j].date < min){
+				min = id_time_tab[j].date;
+				min_id = j;
+			}
+		}
+		out[i] = id_time_tab[min_id].Mid;
+		id_time_tab[min_id].date = 100000;
+	}
+	delete []id_time_tab;
+	return out;
 }
