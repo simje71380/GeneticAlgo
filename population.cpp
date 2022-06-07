@@ -29,9 +29,11 @@ void population::statiatiques()
 
 	for (int i=0; i<taille_pop; i++)
 	{
+		//individus[i]->evaluer();
 		moyenne += individus[i]->fitness;
 		ecart_type += individus[i]->fitness*individus[i]->fitness;
 	}
+	//ordonner();
 	moyenne = moyenne / taille_pop;
 	ecart_type = sqrt(ecart_type/taille_pop - moyenne*moyenne);
 

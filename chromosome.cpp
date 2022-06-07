@@ -1,8 +1,7 @@
 #include "chromosome.h"
 #include <math.h>
 
-//opérateurs de mutation et de croisement
-//opérateur de réparation à aussi utiliser sur la génération du chromosome
+//opérateurs de mutation a faire
 
 
 using namespace std;
@@ -371,7 +370,7 @@ void chromosome::evaluer()
 	kappa = 100 / moyenne;//moyenne de toutes les distance
 	fitness = (zeta*ecart_type_WH + gamma * ecart_type_OH + kappa * ecart_type_D)/3;
 	fitness += penalties;
-	cout << endl << "Fitness : " << fitness << endl;
+	//cout << endl << "Fitness : " << fitness << endl;
 }
 
 // copie les genes d'un chromosome. la fitness n'est reprise

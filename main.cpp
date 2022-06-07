@@ -7,7 +7,7 @@
 
 #include "chromosome.h"
 #include "population.h"
-
+#include "ae.h"	
 
 using namespace std;
 
@@ -18,6 +18,13 @@ Distance *distances;
 int nb_intervenants;
 int nb_missions;
 int taille_pop = 10;
+
+
+int nbg = 10;
+double tcroisement = 0.8;
+double tmutation = 0.1;
+
+
 
 void getData(char *filename, char *filename2, char *filename3){
 	string line, word;
@@ -112,11 +119,21 @@ void getData(char *filename, char *filename2, char *filename3){
 }
 
 int main(int argc, char **argv){
-    if(argc-1 != 3){
+    if(argc-1 < 3){
         std::cout << "Intervenant <fichier.csv>\nMission <fichier.csv>\nDistances <fichier.csv>\n" << std::endl;
         exit(EXIT_FAILURE);
     }
+    if(argc-1 != 7 && argc-1 != 3){
+        std::cout << "Intervenant <fichier.csv>\nMission <fichier.csv>\nDistances <fichier.csv>\nNombre de générations <nbg>\nTaux de croisement <[0.0;1.0]>\nTaux de mutation <[0.0;1.0]>\nTaille de la population <taille>\n" << std::endl;
+        exit(EXIT_FAILURE);
+    }
     getData(argv[1], argv[2], argv[3]);
+    if(argc-1 == 7){
+        nbg = atoi(argv[4]);
+        tcroisement = atof(argv[5]);
+        tmutation = atof(argv[6]);
+        taille_pop = atoi(argv[7]);
+    }
     cout << "Nombre d'intervenants: " << nb_intervenants << endl;
     cout << "Nombre de missions: " << nb_missions << endl;
     Random::randomize();
@@ -127,8 +144,11 @@ int main(int argc, char **argv){
     cout << "nombre de chevauchement : " << Chromosome->hasOnlyOneMissionOrTime() << endl;
     Chromosome->afficher();
     cout << "nb pénalitées : " << Chromosome->countPenalties() << endl;*/
-    population *pop = new population(taille_pop, nb_missions, nb_intervenants, missions, intervenants, distances);
-    pop->statiatiques();
+    //population *pop = new population(taille_pop, nb_missions, nb_intervenants, missions, intervenants, distances);
+    //pop->statiatiques();
+    //int nbg, double tcroisement, double tmutation, int tp, int nb_missions, int nb_intervenants, Mission *missions, Intervenant *intervenants, Distance *distances
+    Ae *ae = new Ae(nbg, tcroisement, tmutation, taille_pop, nb_missions, nb_intervenants, missions, intervenants, distances);
+    ae->optimiser();
     return 0;
 }
 
