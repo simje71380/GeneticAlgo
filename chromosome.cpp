@@ -1,8 +1,8 @@
 #include "chromosome.h"
 #include <math.h>
 
-//fitness : reste zeta que je sais pas ce que c'est
-//opérateurs de mutation et de croisement ?
+//opérateurs de mutation et de croisement
+//opérateur de réparation à aussi utiliser sur la génération du chromosome
 
 
 using namespace std;
@@ -50,6 +50,11 @@ chromosome::chromosome(int nb_missions, int nb_intervenants, Mission *missions, 
 		}
 		
 	}
+	repair();
+
+
+	//réparation (sur les compétences)
+
 }
 
 // destruction de l'objet 'chromosome'
@@ -106,6 +111,102 @@ bool chromosome::hasIntervenantCompetence(){
 	}
 	return true;
 }
+
+void chromosome::repair(){
+	struct Incorrect_genes{
+		int id_mission;
+		int count_available_intervenants; //nombre d'intervenants disponibles pour la mission
+		int *available_intervenant_idx; //contient les id des intervenants disponibles pour la mission
+	}incorrect_gene;
+
+	int taille = nb_missions + nb_intervenants - 1;
+	int id_intervenant = 0;
+	int **output = new int*[nb_intervenants];
+	int *idx_out = new int[nb_intervenants];
+	afficher();
+
+	for(int i=0; i<nb_intervenants; i++){
+		output[i] = new int[taille];
+		idx_out[i] = 0;
+	}
+	
+	for(int i=0; i<taille; i++){
+		if(genes[i] == -1){
+			id_intervenant++;
+			continue;
+		}
+		else{
+			if(intervenants[id_intervenant].GetCompetence() != missions[genes[i]-1].GetCompetence()){ //pas la bonne compétence
+				//cout << "Intervenant " << intervenants[id_intervenant].GetId() << " n'a pas la competence " << missions[genes[i]-1].GetCompetence() << " Pour la mission" << genes[i] <<endl;
+				Incorrect_genes incorrect_gene;
+				incorrect_gene.id_mission = genes[i];
+				incorrect_gene.count_available_intervenants = 0;
+				for(int j=0; j<nb_intervenants; j++){
+					if(intervenants[j].GetCompetence() == missions[genes[i]-1].GetCompetence()){
+						incorrect_gene.count_available_intervenants++;
+					}
+				}
+				if(incorrect_gene.count_available_intervenants == 0){ //normalement impossible
+					cout << "Erreur : aucun intervenant disponible pour la mission " << genes[i] << endl;
+				}
+				incorrect_gene.available_intervenant_idx = new int[incorrect_gene.count_available_intervenants];
+				int idx = 0;
+				for(int j=0; j<nb_intervenants; j++){
+					if(intervenants[j].GetCompetence() == missions[genes[i]-1].GetCompetence()){
+						incorrect_gene.available_intervenant_idx[idx] = j;
+						//cout << "Intervenant " << intervenants[j].GetId() << " a la bonne competence " << intervenants[j].GetCompetence() << endl;
+						idx++;
+					}
+				}
+				//affection aléatoire à un intervenant ayant la bonne compétence
+				int intervenant_real_idx = incorrect_gene.available_intervenant_idx[rand()%incorrect_gene.count_available_intervenants];
+				output[intervenant_real_idx][idx_out[intervenant_real_idx]] = genes[i];
+				//cout << "Intervenant " << intervenants[intervenant_real_idx].GetId() << " a été affecté à la mission " << genes[i] << endl;
+				//affichage de l'affectation
+				idx_out[intervenant_real_idx]++;
+				//libération mémoire
+				delete []incorrect_gene.available_intervenant_idx;
+			}
+			else{//bonne compétence
+				output[id_intervenant][idx_out[id_intervenant]] = genes[i];
+				idx_out[id_intervenant]++;
+			}
+		}
+	}
+
+	//copie des résultats dans les genes
+	int idx = 0;
+	for(int i=0; i<nb_intervenants; i++){
+		//cout << "Intervenant : " << intervenants[i].GetId() << endl;
+		for(int j=0; j<idx_out[i];j++){
+			cout << output[i][j] << " ";
+			genes[idx] = output[i][j];
+			idx++;
+		}
+		//séparateur sauf pour le dernier intervenant
+		if(i != nb_intervenants-1){
+			//cout << endl << "separateur" << endl;
+			genes[idx] = -1;
+			idx++;
+		}	
+	}
+	//libération mémoire
+	for(int i=0; i<nb_intervenants; i++){
+		delete []output[i];
+	}
+	delete []output;
+	delete []idx_out;
+
+	cout << endl << "Chromosome repaired" << endl;
+	//test de la correction
+	if(!hasAllMissionsAffected()){
+		cout << "Erreur : les missions n'ont pas été affectées" << endl;
+	}
+	if(!hasIntervenantCompetence()){
+		cout << "Erreur : les intervenants n'ont pas la bonne compétence" << endl;
+	}
+}
+
 
 int chromosome::hasOnlyOneMissionOrTime(){
 	int id_intervenant = 0;

@@ -54,6 +54,7 @@ public:
     int* OrdonnerMissions(int *missions, int *out, int size); //retourne un tableau ordonné des missions
     bool identique(chromosome* chro); // test si 2 chromosome sont identique
     void copier(chromosome* source);  // copie le chromosome 'source'
+    void repair(); // corrige les problèmes de la solution
 
     // OPERATEURS DE MUTATION
     void echange_2_genes(int gene1,     // interchange 2 g�nes du chromosome
