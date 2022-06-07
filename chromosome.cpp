@@ -50,10 +50,9 @@ chromosome::chromosome(int nb_missions, int nb_intervenants, Mission *missions, 
 		}
 		
 	}
-	repair();
-
-
+	
 	//réparation (sur les compétences)
+	repair_comp();
 
 }
 
@@ -112,7 +111,7 @@ bool chromosome::hasIntervenantCompetence(){
 	return true;
 }
 
-void chromosome::repair(){
+void chromosome::repair_comp(){
 	struct Incorrect_genes{
 		int id_mission;
 		int count_available_intervenants; //nombre d'intervenants disponibles pour la mission
@@ -123,7 +122,6 @@ void chromosome::repair(){
 	int id_intervenant = 0;
 	int **output = new int*[nb_intervenants];
 	int *idx_out = new int[nb_intervenants];
-	afficher();
 
 	for(int i=0; i<nb_intervenants; i++){
 		output[i] = new int[taille];
@@ -147,7 +145,7 @@ void chromosome::repair(){
 					}
 				}
 				if(incorrect_gene.count_available_intervenants == 0){ //normalement impossible
-					cout << "Erreur : aucun intervenant disponible pour la mission " << genes[i] << endl;
+					cout << "Erreur repair_comp : aucun intervenant disponible pour la mission " << genes[i] << endl;
 				}
 				incorrect_gene.available_intervenant_idx = new int[incorrect_gene.count_available_intervenants];
 				int idx = 0;
@@ -179,7 +177,7 @@ void chromosome::repair(){
 	for(int i=0; i<nb_intervenants; i++){
 		//cout << "Intervenant : " << intervenants[i].GetId() << endl;
 		for(int j=0; j<idx_out[i];j++){
-			cout << output[i][j] << " ";
+			//cout << output[i][j] << " ";
 			genes[idx] = output[i][j];
 			idx++;
 		}
@@ -197,13 +195,12 @@ void chromosome::repair(){
 	delete []output;
 	delete []idx_out;
 
-	cout << endl << "Chromosome repaired" << endl;
 	//test de la correction
 	if(!hasAllMissionsAffected()){
 		cout << "Erreur : les missions n'ont pas été affectées" << endl;
 	}
 	if(!hasIntervenantCompetence()){
-		cout << "Erreur : les intervenants n'ont pas la bonne compétence" << endl;
+		cout << "Erreur repair_comp : les intervenants n'ont pas la bonne compétence" << endl;
 	}
 }
 
@@ -421,7 +418,7 @@ void chromosome::afficher()
 	for(int i=1;i<taille;i++)
 		cout << "|" << genes[i];
 	//cout << " => fitness = " << fitness << endl;
-	cout << endl;
+	cout << endl << endl;
 
 	int id_intervenant = 0;
 	int **affected_mission = new int*[nb_intervenants];	//tableau contenant les missions_id affect�es � l'intervant
@@ -456,7 +453,7 @@ void chromosome::afficher()
 	}
 
 	//affichage des missions affect�es
-	for(int i=0; i<nb_intervenants; i++){
+	/*for(int i=0; i<nb_intervenants; i++){
 		cout << "Intervenant " << i+1 << " : " << endl;
 		if(size[i] == 0){
 			cout << "Aucune mission affectées" << endl;
@@ -469,7 +466,7 @@ void chromosome::afficher()
 			cout << " " << out_id[j];
 		}
 		cout << endl;
-	}
+	}*/
 }
 
 bool chromosome::identique(chromosome* chro)

@@ -6,6 +6,7 @@
 #include <iostream>
 
 #include "chromosome.h"
+#include "population.h"
 
 
 using namespace std;
@@ -16,6 +17,7 @@ Mission *missions;
 Distance *distances;
 int nb_intervenants;
 int nb_missions;
+int taille_pop = 10;
 
 void getData(char *filename, char *filename2, char *filename3){
 	string line, word;
@@ -118,13 +120,15 @@ int main(int argc, char **argv){
     cout << "Nombre d'intervenants: " << nb_intervenants << endl;
     cout << "Nombre de missions: " << nb_missions << endl;
     Random::randomize();
-    chromosome *Chromosome = new chromosome(nb_missions, nb_intervenants, missions, intervenants, distances);
-    Chromosome->afficher();
-    Chromosome->evaluer();
+    //chromosome *Chromosome = new chromosome(nb_missions, nb_intervenants, missions, intervenants, distances);
+    //Chromosome->afficher();
+    //Chromosome->evaluer();
     /*Chromosome->hasIntervenantCompetence();
     cout << "nombre de chevauchement : " << Chromosome->hasOnlyOneMissionOrTime() << endl;
     Chromosome->afficher();
     cout << "nb pénalitées : " << Chromosome->countPenalties() << endl;*/
+    population *pop = new population(taille_pop, nb_missions, nb_intervenants, missions, intervenants, distances);
+    pop->statiatiques();
     return 0;
 }
 
