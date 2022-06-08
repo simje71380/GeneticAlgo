@@ -35,6 +35,7 @@ public:
     int coef_pena_temps_deplacement = 100; // coefficient de penalisation pour les temps de déplacement entre mission
     int coef_pena_mission_affecter_plusieurs_fois = 100; // coefficient de penalisation pour les missions affect�es plusieurs fois
     int coef_pena_temps_travail_journalier = 100; // coefficient de penalisation pour les temps de travail journalier
+    int type_pena[7] ={0,0,0,0,0,0,0}; //compte le nombre de pénalités de chaque type
 
 	// CONSTRUCTEURS
 	chromosome(int nb_missions, int nb_intervenants, Mission *missions, Intervenant *intervenants, Distance *distance); // constructeur de l'objet al�atoirement
@@ -55,6 +56,8 @@ public:
     bool identique(chromosome* chro); // test si 2 chromosome sont identique
     void copier(chromosome* source);  // copie le chromosome 'source'
     void repair_comp(); // corrige les problèmes de la solution
+    void show_type_pena(); // affiche le nombre de pénalités de chaque type
+    void countPenalties_show_infos(); // affiche les infos sur les contraintes souples non respectées de la solution
 
     // OPERATEURS DE MUTATION
     void echange_2_genes(int gene1,     // interchange 2 g�nes du chromosome

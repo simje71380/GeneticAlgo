@@ -43,6 +43,8 @@ void population::statiatiques()
 	     << individus[ordre[0]]->fitness << " , "
 	     << individus[ordre[(int)(taille_pop/2)]]->fitness << " , "
 	     << individus[ordre[taille_pop-1]]->fitness << "]" << endl;
+	cout << "nombre de pénalitées pour la meilleure solution : "
+		 << individus[ordre[0]]->countPenalties() << endl;
 }
 
 // Similitude de la population

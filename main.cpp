@@ -20,9 +20,9 @@ int nb_missions;
 int taille_pop = 100;
 
 
-int nbg = 100000;
+int nbg = 200000;
 double tcroisement = 0.8;
-double tmutation = 0.1;
+double tmutation = 1;
 
 
 

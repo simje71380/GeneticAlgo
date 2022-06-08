@@ -126,6 +126,8 @@ chromosome* Ae::optimiser()
 	pop->statiatiques();
 	//  on affiche la consanginit� de la population finale
 	pop->similitude();
+	pop->individus[pop->ordre[0]]->countPenalties_show_infos();
+	pop->individus[pop->ordre[0]]->afficher();
 
 	//retourner le meilleur individu rencontr� pendant la recherche
 	return pop->individus[pop->ordre[0]];
