@@ -20,9 +20,34 @@ chromosome::chromosome(int nb_missions, int nb_intervenants, Mission *missions, 
 	int a;
 	bool recommence = true;
 	taille          = nb_missions + nb_intervenants - 1;//pas de séparateur pour le dernier
-	// un chromosome est compos� de 'taille' g�nes,
-	// les g�nes sont carat�ris� par un entier compris entre 0 et 'taille-1'
-	// il ne peux avoir 2 fois le m�me g�ne dans un chromosome
+	
+
+	int nb_competence_differentes = 1;
+	string *comp = new string[nb_intervenants];
+	comp[0] = intervenants[0].GetCompetence();
+	int idx=1;
+	for(int i=1; i < nb_intervenants; i++){
+		bool deja_vu = false;
+		for(int j=0; j<idx; j++){
+			if(comp[j] == intervenants[i].GetCompetence()){
+				deja_vu = true;
+				break;
+			}
+		}
+		if(!deja_vu){
+			comp[idx] = intervenants[i].GetCompetence();
+			nb_competence_differentes++;
+			idx++;
+		}
+	}
+	this->competences = new string[nb_competence_differentes];
+	for(int i=0; i<nb_competence_differentes; i++){
+		this->competences[i] = comp[i];
+	}
+	delete [] comp;
+	this->nb_competences = nb_competence_differentes;
+
+
 	genes = new int[taille];
 	int nb_separateurs = nb_intervenants - 1;
 	for(int i=0; i<taille; i++)
@@ -49,10 +74,8 @@ chromosome::chromosome(int nb_missions, int nb_intervenants, Mission *missions, 
 		}
 		
 	}
-	
 	//réparation (sur les compétences)
 	repair_comp();
-
 }
 
 // destruction de l'objet 'chromosome'
@@ -385,14 +408,66 @@ void chromosome::echange_2_genes(int gene1, int gene2)
 	genes[gene2] = inter;
 }
 
-void chromosome::echange_2_genes_consecutifs()
-{
-	// on s�l�ctionne un g�ne al�atoirement entre premier et l'avant dernier.
-	// Rappel : Random::aleatoire(taille-1) retourne un entier al�atoire compris entre 0 et taille-2
-	int i = Random::aleatoire(taille-1);
-
-	// on �change le g�ne s�l�ctionn� al�atoirement avec le g�ne le succ�dant
-	echange_2_genes(i, i+1);
+void chromosome::echange_2_genes_entre_intervenant_meme_competences(){
+	//tirage au sort de la compétence a swapper
+	int comp = Random::aleatoire(nb_competences);
+	//on swappe deux gènes de deux individu ayant cette compétence
+	int *memo_inter_idx = new int[nb_intervenants];
+	int nb_inter_meme_comp = 0;
+	for(int i=0; i<nb_intervenants; i++){
+		if(intervenants[i].GetCompetence() == competences[comp]){
+			//memo idx de l'intervenant
+			memo_inter_idx[nb_inter_meme_comp] = i;
+			nb_inter_meme_comp++;
+		}
+	}
+	if(nb_inter_meme_comp < 2){
+		cout << "Erreur : nombre d'intervenant ayant la même compétence insuffisant" << endl;
+		return;
+	}
+	int inter_idx1 = memo_inter_idx[Random::aleatoire(nb_inter_meme_comp)];
+	int inter_idx2 = memo_inter_idx[Random::aleatoire(nb_inter_meme_comp)];
+	while(inter_idx1 == inter_idx2){
+		inter_idx2 = memo_inter_idx[Random::aleatoire(nb_inter_meme_comp)];
+	}
+	int intervenant_idx = 0;
+	int j = 0;
+	int counter_1 = 0;
+	int counter_2 = 0;
+	int start_1 = 0;
+	int start_2 = 0;
+	for(int i=0; i<taille; i++){
+		if(genes[i] == -1){
+			intervenant_idx++;
+			if(intervenant_idx == inter_idx1){
+				start_1 = i+1;
+				counter_1 = 0;
+			}
+			if(intervenant_idx == inter_idx2){
+				start_2 = i+1;
+				counter_2 = 0;
+			}
+			continue;
+		}
+		else if(intervenant_idx == inter_idx1){
+			counter_1++;
+		}
+		else if(intervenant_idx == inter_idx2){
+			counter_2++;
+		}
+	}
+	//cout << "echange de deux gènes pour les compétences " << competences[comp] << endl;
+	//cout << "intervenant 1 : " << inter_idx1 << endl;
+	//cout << "intervenant 2 : " << inter_idx2 << endl;
+	if(counter_1 == 0 || counter_2 == 0){ //un intervenant n'a pas de mission -> on peut pas swapper
+		//cout << "Erreur : nombre de missions pour cet intervenant insuffisant" << endl;
+		return;
+	}
+	int gene1 = start_1 + Random::aleatoire(counter_1);
+	int gene2 = start_2 + Random::aleatoire(counter_2);
+	//cout << "gène 1 : " << gene1 << endl;
+	//cout << "gène 2 : " << gene2 << endl;
+	echange_2_genes(gene1, gene2);
 }
 
 void chromosome::echange_2_genes_quelconques()
@@ -406,13 +481,9 @@ void chromosome::echange_2_genes_quelconques()
 	repair_comp();//reparation du chromosome si nécessaire
 }
 
-void chromosome::deplacement_1_gene()
-{
-}
 
-void chromosome::inversion_sequence_genes()
-{
-}
+
+
 
 // affichage des param�tre d'un chromosome
 void chromosome::afficher()

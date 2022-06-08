@@ -26,16 +26,19 @@ public:
     Mission *missions;  // pointeurs sur les missions
     Intervenant *intervenants; // pointeurs sur les intervenants
     Distance *distances; // pointeur sur la distance
+    int nb_competences;     // nombre de comp�tence différents
+	string* competences;	// liste des comp�tence diff�rentes
 
     //coef des pénalitées pour non respect d'une contrainte souple
     int coef_pena_pause_midi = 100; // coefficient de penalisation pour les pauses midi
     int coef_pena_heure_supp = 100; // coefficient de penalisation pour les heures suppl�mentaires
     int coef_pena_amplitude = 100; // coefficient de penalisation pour les amplitudes des journées
-    int coef_pena_chevauchement_missions = 100; // coefficient de penalisation pour les chevauchements de missions
-    int coef_pena_temps_deplacement = 100; // coefficient de penalisation pour les temps de déplacement entre mission
-    int coef_pena_mission_affecter_plusieurs_fois = 100; // coefficient de penalisation pour les missions affect�es plusieurs fois
+    int coef_pena_chevauchement_missions = 200; // coefficient de penalisation pour les chevauchements de missions
+    int coef_pena_temps_deplacement = 200; // coefficient de penalisation pour les temps de déplacement entre mission
+    int coef_pena_mission_affecter_plusieurs_fois = 1000; // coefficient de penalisation pour les missions affect�es plusieurs fois
     int coef_pena_temps_travail_journalier = 100; // coefficient de penalisation pour les temps de travail journalier
     int type_pena[7] ={0,0,0,0,0,0,0}; //compte le nombre de pénalités de chaque type
+    
 
 	// CONSTRUCTEURS
 	chromosome(int nb_missions, int nb_intervenants, Mission *missions, Intervenant *intervenants, Distance *distance); // constructeur de l'objet al�atoirement
@@ -62,10 +65,8 @@ public:
     // OPERATEURS DE MUTATION
     void echange_2_genes(int gene1,     // interchange 2 g�nes du chromosome
                          int gene2);
-    void echange_2_genes_consecutifs(); // interchange 2 g�nes cons�cutifs du chromosome
     void echange_2_genes_quelconques(); // interchange al�atoirement 2 g�nes du chromosome
-    void deplacement_1_gene();          // d�place un g�ne dans le chromosome
-    void inversion_sequence_genes();    // inverse une s�quence de g�nes du chromosome
+    void echange_2_genes_entre_intervenant_meme_competences(); // interchange al�atoirement 2 g�nes du chromosome entre les intervenants ayant les m�mes comp�tences
     void distance_per_intervenant(); //retourne la distance entre les missions affect�es par l'intervenant
 };
 

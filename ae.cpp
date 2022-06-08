@@ -94,12 +94,23 @@ chromosome* Ae::optimiser()
 
 		// On effectue la mutation d'un enfant avec une probabilit� "taux_mutation"
 		if(Random::aleatoire(1000)/1000.0 < taux_mutation)
-		    fils1->echange_2_genes_quelconques();
+			if(Random::aleatoire(1000)/1000.0 < 0.5){
+				fils1->echange_2_genes_quelconques();
+			}
+			else{
+				fils1->echange_2_genes_entre_intervenant_meme_competences();
+			}
+		    
 			//fils1->echange_2_genes_consecutifs();
 
 		// On effectue la mutation de l'autre enfant avec une probabilit� "taux_mutation"
 		if(Random::aleatoire(1000)/1000.0 < taux_mutation)
-			fils2->echange_2_genes_quelconques();
+			if(Random::aleatoire(1000)/1000.0 < 0.5){
+				fils2->echange_2_genes_quelconques();
+			}
+			else{
+				fils2->echange_2_genes_entre_intervenant_meme_competences();
+			}
 			//fils2->echange_2_genes_consecutifs();
 
 		// �valuation des deux nouveaux individus g�n�r�s

@@ -17,12 +17,12 @@ Mission *missions;
 Distance *distances;
 int nb_intervenants;
 int nb_missions;
-int taille_pop = 100;
+int taille_pop = 70;
 
 
-int nbg = 200000;
+int nbg = 300000;
 double tcroisement = 0.8;
-double tmutation = 1;
+double tmutation = 1.0;
 
 
 
