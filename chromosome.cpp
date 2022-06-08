@@ -2,7 +2,7 @@
 #include <math.h>
 
 //opérateurs de mutation a faire
-
+//possibilité d'amélioration : répartion tirage avec proba différente si temps plein ou temps partiel
 
 using namespace std;
 
@@ -400,6 +400,13 @@ void chromosome::echange_2_genes_consecutifs()
 
 void chromosome::echange_2_genes_quelconques()
 {
+	// on s�l�ctionne 2 g�nes al�atoirement
+	int i = Random::aleatoire(taille-1);
+	int j = Random::aleatoire(taille-1);
+
+	// on �change les 2 g�nes s�l�ctionn�s al�atoirement
+	echange_2_genes(i, j);
+	repair_comp();//reparation du chromosome si nécessaire
 }
 
 void chromosome::deplacement_1_gene()

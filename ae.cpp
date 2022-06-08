@@ -18,6 +18,31 @@ Ae::Ae(int nbg, double tcroisement, double tmutation, int tp, int nb_missions, i
 	this->intervenants= intervenants;
 	this->distances   = distances;
 	pop   = new population(taille_pop, nb_missions, nb_intervenants, missions, intervenants, distances);
+
+	int nb_competence_differentes = 1;
+	string *comp = new string[nb_intervenants];
+	comp[0] = intervenants[0].GetCompetence();
+	int idx=1;
+	for(int i=1; i < nb_intervenants; i++){
+		bool deja_vu = false;
+		for(int j=0; j<idx; j++){
+			if(comp[j] == intervenants[i].GetCompetence()){
+				deja_vu = true;
+				break;
+			}
+		}
+		if(!deja_vu){
+			comp[idx] = intervenants[i].GetCompetence();
+			nb_competence_differentes++;
+			idx++;
+		}
+	}
+	this->competences = new string[nb_competence_differentes];
+	for(int i=0; i<nb_competence_differentes; i++){
+		this->competences[i] = comp[i];
+	}
+	delete [] comp;
+	this->nb_competences = nb_competence_differentes;
 }
 
 // destructeur de l'objet Ae
@@ -48,9 +73,6 @@ chromosome* Ae::optimiser()
 	cout << "Quelques statistiques sur la population initiale" << endl;
 	pop->statiatiques();
 
-	return pop->individus[pop->ordre[0]];
-	//here
-
 	//tant que le nombre de g�n�rations limite n'est pas atteint
 	for(int g=0; g<nbgenerations; g++)
 	{
@@ -61,7 +83,8 @@ chromosome* Ae::optimiser()
 		// On effectue un croisementavec une probabilit� "taux_croisement"
 		if(Random::aleatoire(1000)/1000.0 < taux_croisement)
 		{
-			croisement1X(pere1, pere2, fils1, fils2);
+			//croisement1X(pere1, pere2, fils1, fils2);
+			croisement_competence(pere1, pere2, fils1, fils2);
 		}
 		else
 		{
@@ -71,11 +94,13 @@ chromosome* Ae::optimiser()
 
 		// On effectue la mutation d'un enfant avec une probabilit� "taux_mutation"
 		if(Random::aleatoire(1000)/1000.0 < taux_mutation)
-			fils1->echange_2_genes_consecutifs();
+		    fils1->echange_2_genes_quelconques();
+			//fils1->echange_2_genes_consecutifs();
 
 		// On effectue la mutation de l'autre enfant avec une probabilit� "taux_mutation"
 		if(Random::aleatoire(1000)/1000.0 < taux_mutation)
-			fils2->echange_2_genes_consecutifs();
+			fils2->echange_2_genes_quelconques();
+			//fils2->echange_2_genes_consecutifs();
 
 		// �valuation des deux nouveaux individus g�n�r�s
 		fils1->evaluer();
@@ -105,6 +130,82 @@ chromosome* Ae::optimiser()
 	//retourner le meilleur individu rencontr� pendant la recherche
 	return pop->individus[pop->ordre[0]];
 }
+
+
+//effectue un croisement par compétence:
+//enfant 1 : on prend du parent 1 les missions des intervenants ayant la compétence LSF et du parent2 les missions des intervenants ayant la compétence LPC
+//enfant 2 : on prend le reste du parent 1 et du parent 2
+void Ae::croisement_competence(chromosome *pere1, chromosome *pere2, chromosome *fils1, chromosome *fils2){
+	//tirage au sort de la compétence a swapper
+	int comp = Random::aleatoire(nb_competences);
+	//on swappe les compétences
+	int taille = nb_missions + nb_intervenants - 1;
+	//cout << "On swappe sur la compétence " << competences[comp] << endl;
+	int idx_fils1 = 0;
+	int idx_fils2 = 0;
+	int idx_pere1 = 0;
+	int idx_pere2 = 0;
+	//construction des fils
+	for(int i=0; i<nb_intervenants; i++){
+		if(intervenants[i].GetCompetence() == competences[comp]){
+			//fils 2 prend les missions du parent 1
+			while(pere1->genes[idx_pere1] != -1 && idx_pere1 < taille){
+				//cout << "fils2 prend la mission " << pere1->genes[idx_pere1] << " du parent 1" << endl;
+				fils2->genes[idx_fils2] = pere1->genes[idx_pere1];
+				idx_fils2++;
+				idx_pere1++;
+			}
+			//fils 1 prend les missions du parent 2
+			while(pere2->genes[idx_pere2] != -1 && idx_pere2 < taille){
+				fils1->genes[idx_fils1] = pere2->genes[idx_pere2];
+				idx_fils1++;
+				idx_pere2++;
+			}
+			if(idx_fils2 < taille){
+				/*cout << "fils2 prend la mission " << pere1->genes[idx_pere1] << " du parent 1" << endl;
+				cout << "idx_pere1 = " << idx_pere1 << endl;
+				cout << "idx_fil2 = " << idx_fils2 << endl;
+				cout << "idx_pere2 = " << idx_pere2 << endl;*/
+				fils2->genes[idx_fils2] = pere1->genes[idx_pere1];
+				fils1->genes[idx_fils1] = pere2->genes[idx_pere2];
+				idx_fils2++;
+				idx_fils1++;
+				idx_pere1++;
+				idx_pere2++;
+			}
+		}
+		else{//recopie
+			while(pere2->genes[idx_pere2] != -1 && idx_pere2 < taille){
+				//cout << "fils2 prend la mission " << pere2->genes[idx_pere2] << " du parent 2" << endl;
+				fils2->genes[idx_fils2] = pere2->genes[idx_pere2];
+				idx_fils2++;
+				idx_pere2++;
+			}
+			while(pere1->genes[idx_pere1] != -1 && idx_pere1 < taille){
+				fils1->genes[idx_fils1] = pere1->genes[idx_pere1];
+				idx_fils1++;
+				idx_pere1++;
+			}
+			if(idx_fils2 < taille){
+				/*cout << "fils2 prend la mission " << pere2->genes[idx_pere2] << " du parent 2" << endl;
+				cout << "idx_pere1 = " << idx_pere1 << endl;
+				cout << "idx_fil2 = " << idx_fils2 << endl;
+				cout << "idx_pere2 = " << idx_pere2 << endl;*/
+				fils2->genes[idx_fils2] = pere2->genes[idx_pere2];
+				fils1->genes[idx_fils1] = pere1->genes[idx_pere1];
+				idx_fils1++;
+				idx_fils2++;
+				idx_pere1++;
+				idx_pere2++;
+			}
+		}
+	}
+}
+
+
+
+
+
 
 // op�rateur de croisement � un point : croisement 1X
 // 1) l'op�rateur 1X choisit de mani�re al�atoire un point de croisement

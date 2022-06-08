@@ -25,6 +25,8 @@ public:
 	Mission *missions;      // liste des missions
 	Intervenant *intervenants; // liste des intervenants
 	Distance *distances;    // liste des distances
+	int nb_competences;     // nombre de comp�tence différents
+	string* competences;	// liste des comp�tence diff�rentes
 
 	// CONSTRUCTEURS
 	Ae(int nbg, double tcroisement, double tmutation, int tp, int nb_missions, int nb_intervenants, Mission *missions, Intervenant *intervenants, Distance *distances);
@@ -36,6 +38,9 @@ public:
 	chromosome* optimiser(); // fonction principale qui d�cit le d�roulement de l'algorithme �volusionniste
 
 	// OPERATEURS DE CROISEMENT
+	void croisement_competence(chromosome *pere1, chromosome *pere2, chromosome *fils1, chromosome *fils2);
+
+
 	// op�rateur de croisement 1X de deux chromosomes
     void croisement1X(chromosome* parent1, chromosome* parent2,
                       chromosome* enfant1, chromosome* enfant2);

@@ -17,10 +17,10 @@ Mission *missions;
 Distance *distances;
 int nb_intervenants;
 int nb_missions;
-int taille_pop = 10;
+int taille_pop = 100;
 
 
-int nbg = 10;
+int nbg = 100000;
 double tcroisement = 0.8;
 double tmutation = 0.1;
 
@@ -149,6 +149,7 @@ int main(int argc, char **argv){
     //int nbg, double tcroisement, double tmutation, int tp, int nb_missions, int nb_intervenants, Mission *missions, Intervenant *intervenants, Distance *distances
     Ae *ae = new Ae(nbg, tcroisement, tmutation, taille_pop, nb_missions, nb_intervenants, missions, intervenants, distances);
     ae->optimiser();
+
     return 0;
 }
 
