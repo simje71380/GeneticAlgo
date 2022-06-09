@@ -5,8 +5,10 @@
 #include <stdio.h>
 #include <iostream>
 #include <fstream>
+#include <time.h>
 #include "population.h"
 #include "chromosome.h"
+#include "Liste.h"
 
 using namespace std;
 // La classe Ae d�finie les param�tres d'une ex�cution d'un algorithme
@@ -35,7 +37,7 @@ public:
 
 	// METHODES
 
-	chromosome* optimiser(); // fonction principale qui d�cit le d�roulement de l'algorithme �volusionniste
+	chromosome* optimiser(clock_t t_max, Liste<chromosome*> *liste); // fonction principale qui d�cit le d�roulement de l'algorithme �volusionniste
 
 	// OPERATEURS DE CROISEMENT
 	void croisement_competence(chromosome *pere1, chromosome *pere2, chromosome *fils1, chromosome *fils2);

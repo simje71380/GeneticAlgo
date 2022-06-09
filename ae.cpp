@@ -52,7 +52,7 @@ Ae::~Ae()
 }
 
 // proc�dure principale de la recherche
-chromosome* Ae::optimiser()
+chromosome* Ae::optimiser(clock_t t_max, Liste<chromosome*> *liste)
 {
 	int amelioration = 0;
 	chromosome *fils1 = new chromosome(nb_missions, nb_intervenants, missions, intervenants, distances);//la
@@ -72,7 +72,7 @@ chromosome* Ae::optimiser()
 	//  on affiche les statistiques de la population initiale
 	cout << "Quelques statistiques sur la population initiale" << endl;
 	pop->statiatiques();
-
+	bool broke = false;
 	//tant que le nombre de g�n�rations limite n'est pas atteint
 	for(int g=0; g<nbgenerations; g++)
 	{
@@ -131,16 +131,32 @@ chromosome* Ae::optimiser()
 			cout << "Amelioration de la meilleure solution a la generation " << g << " : " << best_fitness << endl;
 			amelioration = g;
 		}
+		clock_t t = clock();
+		if(t > t_max){
+			broke = true;
+			break;
+		}	
+			
 	}
 	//  on affiche les statistiques de la population finale
-	cout << "Quelques statistiques sur la population finale" << endl;
-	pop->statiatiques();
-	//  on affiche la consanginit� de la population finale
-	pop->similitude();
-	pop->individus[pop->ordre[0]]->countPenalties_show_infos();
-	pop->individus[pop->ordre[0]]->afficher();
-
+	if(!broke){
+		cout << "Quelques statistiques sur la population finale" << endl;
+		pop->statiatiques();
+		//  on affiche la consanginit� de la population finale
+		pop->similitude();
+		pop->individus[pop->ordre[0]]->countPenalties_show_infos();
+		pop->individus[pop->ordre[0]]->afficher();
+		//ajouter les 10% meilleures a la liste
+		for(int i=0; i<taille_pop*0.1; i++){
+			liste->ajouter(pop->individus[pop->ordre[i]],0);
+		}
+	}
+	
 	//retourner le meilleur individu rencontr� pendant la recherche
+
+
+	
+	
 	return pop->individus[pop->ordre[0]];
 }
 

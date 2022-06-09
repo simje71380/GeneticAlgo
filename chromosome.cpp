@@ -1,6 +1,6 @@
 #include "chromosome.h"
 #include <math.h>
-
+#include <string>
 //opérateurs de mutation a faire
 //possibilité d'amélioration : répartion tirage avec proba différente si temps plein ou temps partiel
 
@@ -393,6 +393,52 @@ void chromosome::evaluer()
 	//cout << endl << "Fitness : " << fitness << endl;
 }
 
+void chromosome::evaluer2(){
+	double aplha = 100/nb_missions;
+	int nb_missions_sans_la_specialite = 0;
+	int intervenant_idx = 0;
+	for(int i=0; i<taille; i++){
+		if(genes[i] == -1){
+			intervenant_idx++;
+			continue;
+		}
+		else{
+			if(missions[genes[i]-1].GetSpecialite() != intervenants[intervenant_idx].GetSpecialite()){
+				//cout << "Intervenant " << intervenants[intervenant_idx].GetId() << " n'a pas la specialite de la mission " << genes[i] << endl;
+				nb_missions_sans_la_specialite++;
+			}
+		}
+	}
+	fitness2 = aplha * nb_missions_sans_la_specialite;
+}
+
+void chromosome::evaluer3(){
+	double beta = 100/45;
+	double kappa = 0.0;
+	double moyenne = 0.0;
+    // somme toutes missions de la distance centre à m + m à centre / nombre intervenants
+    for(int i = 1; i < nb_missions+1; i++){
+        moyenne += distances->getDistanceSESSADtoM(i);
+		moyenne += distances->getDistanceMtoSESSAD(i);
+    }
+    moyenne /= nb_intervenants;
+	kappa = 100 / moyenne;//moyenne de toutes les distance
+
+	double sumWOH = 0.0; //heure sup + heures non travaillées
+	double moyD = 0.0; //moyenne des distances parcourue par les employés
+	double maxD = 0.0; //distance max parcourue par les employés
+	for(int i=0; i<nb_intervenants; i++){
+		sumWOH += heure_supp[i];
+		sumWOH += working_hours_weekly[i]-intervenants[i].GetTpsHebdo();
+		moyD += distance_par_intervenant[i];
+		if(distance_par_intervenant[i] > maxD){
+			maxD = distance_par_intervenant[i];
+		}
+	}
+	moyD /= nb_intervenants;
+	fitness3 = (beta*sumWOH+kappa*moyD+kappa*maxD)/3;
+}
+
 // copie les genes d'un chromosome. la fitness n'est reprise
 void chromosome::copier(chromosome* source)
 {
@@ -493,7 +539,8 @@ void chromosome::afficher()
 		cout << "|" << genes[i];
 	//cout << " => fitness = " << fitness << endl;
 	cout << endl << endl;
-
+	countPenalties_show_infos();
+	cout << endl;
 	int id_intervenant = 0;
 	int **affected_mission = new int*[nb_intervenants];	//tableau contenant les missions_id affect�es � l'intervant
 	int *size = new int[nb_intervenants];				//tableau contenant le nombre de missions affect�es par intervenant
@@ -527,7 +574,7 @@ void chromosome::afficher()
 	}
 
 	//affichage des missions affect�es
-	/*for(int i=0; i<nb_intervenants; i++){
+	for(int i=0; i<nb_intervenants; i++){
 		cout << "Intervenant " << i+1 << " : " << endl;
 		if(size[i] == 0){
 			cout << "Aucune mission affectées" << endl;
@@ -540,7 +587,13 @@ void chromosome::afficher()
 			cout << " " << out_id[j];
 		}
 		cout << endl;
-	}*/
+	}
+
+	cout << endl;
+	cout << "Fitness 1 = " << fitness << endl;
+	cout << "Fitness 2 = " << fitness2 << endl;
+	cout << "Fitness 3 = " << fitness3 << endl;
+
 }
 
 bool chromosome::identique(chromosome* chro)
@@ -697,9 +750,10 @@ double chromosome::countPenalties(){
 						//cout << "Intervenant : " << i+1 <<" Mission " << out[j-1] << " et " << out[j] << " pas le temps trajet" << endl;
 					}
 				}
-				if(missions[out[j-1]-1].GetFinMissionMinute() >= 720 && !deja_penalise){ //mission précédente fini à/apres midi -> il faut un delta d'au moins 1h avant le debut de la mission courrante
+				if(missions[out[j-1]-1].GetFinMissionMinute() >= 720 && missions[out[j]-1].GetDebutMissionMinute() <= 840){ //mission précédente fini à/apres midi -> il faut un delta d'au moins 1h avant le debut de la mission courrante
 					int delta = (int)missions[out[j]-1].GetDebutMissionMinute() - (int)missions[out[j-1]-1].GetFinMissionMinute(); //temps de trajet non compté
 					if(delta < 60){
+						//cout << "Intervenant : " << i+1 <<  " Mission " << out[j-1] << " et " << out[j] << " pas le temps de trajet" << endl;
 						counter_penalties += coef_pena_pause_midi;
 						type_pena[0]++;
 						deja_penalise = true;
@@ -938,7 +992,7 @@ void chromosome::countPenalties_show_infos(){
 						//cout << "Intervenant : " << i+1 <<" Mission " << out[j-1] << " et " << out[j] << " pas le temps trajet" << endl;
 					}
 				}
-				if(missions[out[j-1]-1].GetFinMissionMinute() >= 720 && !deja_penalise){ //mission précédente fini à/apres midi -> il faut un delta d'au moins 1h avant le debut de la mission courrante
+				if(missions[out[j-1]-1].GetFinMissionMinute() >= 720  && missions[out[j]-1].GetDebutMissionMinute() <= 840){ //mission précédente fini à/apres midi -> il faut un delta d'au moins 1h avant le debut de la mission courrante
 					int delta = (int)missions[out[j]-1].GetDebutMissionMinute() - (int)missions[out[j-1]-1].GetFinMissionMinute(); //temps de trajet non compté
 					if(delta < 60){
 						counter_penalties += coef_pena_pause_midi;
@@ -973,10 +1027,10 @@ void chromosome::countPenalties_show_infos(){
 					cout << "Erreur : tps hebdo non défini" << endl;
 					exit(1);
 				}
-				if(working_minutes_daily > h_max_daily){ //ne doit pas dépasser 8h
+				if(working_minutes_daily > h_max_daily){ //ne doit pas dépasser 8h ou 6h
 					counter_penalties += coef_pena_temps_travail_journalier;
 					type_pena[6]++;
-					cout << "Intervenant " << i+1 <<  " jour " << day << " trop de temps de travail ("<< working_minutes_daily << ")" << endl;
+					cout << "Intervenant " << i+1 <<  " jour " << day << " trop de temps de travail +"<< working_minutes_daily -h_max_daily << " min (total : " << working_minutes_daily/60.0 << "h)"<< endl;
 					if(working_minutes_daily > h_max_daily+120){ // + de 2h supp sur la journée
 						counter_penalties += coef_pena_heure_supp;
 						type_pena[1]++;
@@ -1015,7 +1069,7 @@ void chromosome::countPenalties_show_infos(){
 		if(working_minutes_daily > h_max_daily){ //ne doit pas dépasser 8h
 			counter_penalties += coef_pena_temps_travail_journalier;
 			type_pena[6]++;
-			cout << "Intervenant " << i+1 <<  " jour " << day << " trop de temps de travail ("<< working_minutes_daily << ")" << endl;
+			cout << "Intervenant " << i+1 <<  " jour " << day << " trop de temps de travail +"<< working_minutes_daily - h_max_daily << " min (total : " << working_minutes_daily/60.0 << "h)"<< endl;
 			if(working_minutes_daily > h_max_daily+120){ // + de 2h supp sur la journée
 				counter_penalties += coef_pena_heure_supp;
 				type_pena[1]++;
