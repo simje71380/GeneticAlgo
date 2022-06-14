@@ -1,4 +1,4 @@
-#ifndef POPULATION_H
+ #ifndef POPULATION_H
 #define POPULATION_H
 
 #include <math.h>
@@ -29,12 +29,6 @@ public:
     // OPERATEURS DE SELECTION ET DE REMPLACEMENT
     chromosome *selection_roulette();                 // sel�ction par roulette biais�e d'un individu de la population
     void remplacement_roulette(chromosome *individu); // rempacement par roulette biais�e d'un individu de la population par un chromosome donn�
-
-    chromosome *selection_ranking(float taux_ranking);// sel�ction par ranking d'un individu de la population
-    void remplacement_ranking(chromosome *individu, float taux_ranking); // rempacement par ranking d'un individu de la population par un chromosome donn�
-
-    chromosome* selection_aleatoire();                // s�lection et de remplacement al�toire
-    void remplacement_aleatoire(chromosome* individu);// remplacement al�toire
 
     void ordonner();
     void reordonner();

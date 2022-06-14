@@ -20,12 +20,12 @@ Mission *missions;
 Distance *distances;
 int nb_intervenants;
 int nb_missions;
-int taille_pop = 100;
+int taille_pop = 25;
 
 
 int nbg = 50000;
 double tcroisement = 0.5;
-double tmutation = 0.2;
+double tmutation = 0.75;
 
 
 
@@ -159,6 +159,10 @@ int main(int argc, char **argv){
     //liste de chromosomes contenant les meilleurs individus générés (on prends les 10 meilleurs de chaque ae)
     Liste<chromosome*> meilleurs;
     //tant que le temps n'est pas écoulé on créer un ae et on l'optimise.
+    
+    //Ae *ae = new Ae(nbg, tcroisement, tmutation, taille_pop, nb_missions, nb_intervenants, missions, intervenants, distances);
+    //ae->optimiser(t_max, &meilleurs);
+    
     while(clock() < t_max){
         Ae *ae = new Ae(nbg, tcroisement, tmutation, taille_pop, nb_missions, nb_intervenants, missions, intervenants, distances);
         ae->optimiser(t_max, &meilleurs);
@@ -179,6 +183,8 @@ int main(int argc, char **argv){
         meilleurs[i]->evaluer2();
     }
     int number = meilleurs.longueur()/10;
+    if(number == 0)
+        number = 1;
     chromosome **meilleurs2 = new chromosome*[number]; //contient les 10% meilleurs sur la fitness 2 et fitness 1
     int iter = 0;
     while(iter < number){

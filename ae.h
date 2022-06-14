@@ -41,17 +41,6 @@ public:
 
 	// OPERATEURS DE CROISEMENT
 	void croisement_competence(chromosome *pere1, chromosome *pere2, chromosome *fils1, chromosome *fils2);
-
-
-	// op�rateur de croisement 1X de deux chromosomes
-    void croisement1X(chromosome* parent1, chromosome* parent2,
-                      chromosome* enfant1, chromosome* enfant2);
-	// op�rateur de croisement 1X de deux chromosomes
-    void croisement2X(chromosome* parent1, chromosome* parent2,
-                      chromosome* enfant1, chromosome* enfant2);
-	// op�rateur de croisement 2LOX de deux chromosomes
-    void croisement2LOX(chromosome* parent1, chromosome* parent2,
-                        chromosome* enfant_s1, chromosome* enfant_s2);
 };
 
 # endif
