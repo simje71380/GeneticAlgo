@@ -779,13 +779,14 @@ double chromosome::countPenalties(){
 				if(intervenants[i].GetTpsHebdo() == 35){//temps plein
 					h_max_daily = 480;
 				}
-				else if(intervenants[i].GetTpsHebdo() == 24){//temps partiel
+				else if(intervenants[i].GetTpsHebdo() == 21 || intervenants[i].GetTpsHebdo() == 24){//temps partiel
 					h_max_daily = 360;
 				}
 				else{
 					cout << "Erreur : tps hebdo non défini" << endl;
 					exit(1);
 				}
+				
 				if(working_minutes_daily > h_max_daily){ //ne doit pas dépasser 8h
 					counter_penalties += coef_pena_temps_travail_journalier;
 					type_pena[6]++;
@@ -818,7 +819,7 @@ double chromosome::countPenalties(){
 		if(intervenants[i].GetTpsHebdo() == 35){//temps plein
 			h_max_daily = 480;
 		}
-		else if(intervenants[i].GetTpsHebdo() == 24){//temps partiel
+		else if(intervenants[i].GetTpsHebdo() == 24 ||intervenants[i].GetTpsHebdo() == 21){//temps partiel
 			h_max_daily = 360;
 		}
 		else{
@@ -1020,7 +1021,7 @@ void chromosome::countPenalties_show_infos(){
 				if(intervenants[i].GetTpsHebdo() == 35){//temps plein
 					h_max_daily = 480;
 				}
-				else if(intervenants[i].GetTpsHebdo() == 24){//temps partiel
+				else if(intervenants[i].GetTpsHebdo() == 24 ||intervenants[i].GetTpsHebdo() == 21){//temps partiel
 					h_max_daily = 360;
 				}
 				else{
@@ -1059,7 +1060,7 @@ void chromosome::countPenalties_show_infos(){
 		if(intervenants[i].GetTpsHebdo() == 35){//temps plein
 			h_max_daily = 480;
 		}
-		else if(intervenants[i].GetTpsHebdo() == 24){//temps partiel
+		else if(intervenants[i].GetTpsHebdo() == 24 || intervenants[i].GetTpsHebdo() == 21){//temps partiel
 			h_max_daily = 360;
 		}
 		else{

@@ -134,10 +134,15 @@ int main(int argc, char **argv){
     getData(argv[1], argv[2], argv[3]);
     int temps_exec_sec = atof(argv[4]);
     if(argc-1 == 8){
-        nbg = atoi(argv[4]);
-        tcroisement = atof(argv[5]);
-        tmutation = atof(argv[6]);
-        taille_pop = atoi(argv[7]);
+        nbg = atoi(argv[5]);
+        tcroisement = atof(argv[6]);
+        tmutation = atof(argv[7]);
+        taille_pop = atoi(argv[8]);
+        cout << "nbg: " << nbg << endl;
+        cout << "tcross: " << tcroisement << endl;
+        cout << "tmut: " << tmutation << endl;
+        cout << "taille: " << taille_pop << endl;
+
     }
     cout << "Nombre d'intervenants: " << nb_intervenants << endl;
     cout << "Nombre de missions: " << nb_missions << endl;
@@ -162,7 +167,7 @@ int main(int argc, char **argv){
     
     //Ae *ae = new Ae(nbg, tcroisement, tmutation, taille_pop, nb_missions, nb_intervenants, missions, intervenants, distances);
     //ae->optimiser(t_max, &meilleurs);
-    
+
     while(clock() < t_max){
         Ae *ae = new Ae(nbg, tcroisement, tmutation, taille_pop, nb_missions, nb_intervenants, missions, intervenants, distances);
         ae->optimiser(t_max, &meilleurs);
@@ -218,6 +223,7 @@ int main(int argc, char **argv){
 
     float time = (float)(t2-t1)/CLOCKS_PER_SEC;
     printf("\n\nExecution time : %fs\n", time);
+
 
     return 0;
 }

@@ -85,7 +85,7 @@ clean :
 
 # Taper 'make clear' fait un 'make clean' puis efface en plus l'ex�cutable.
 clear : 
-	make clean;
+	make clean
 	rm -f algo_evo
 
 
